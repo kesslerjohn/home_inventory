@@ -44,19 +44,26 @@ class Connection(object):
     
     def search(self, term : str) -> list[tuple]:
         query = f"SELECT * FROM items WHERE name LIKE '%{term}%';"
-        self.cursor().execute(query)
+        try:
+            with sqlite3.connect(self.path) as conn:
+                res = conn.cursor().execute(query).fetchall()
+            return res
+        except Error:
+            raise
 
     def getItem(self, uuid: str) -> Item:
         query = f'SELECT * FROM items WHERE uuid = "{uuid}";'
-        res = self.cursor().execute(query).fetchone()
-        item = Item(uuid = res[1], name = res[2], quantity = res[3], cost = res[4], weight = res[5])
-        return item
+        try:
+            with sqlite3.connect(self.path) as conn:
+                res = conn.cursor().execute(query).fetchone()
+            item = Item(uuid = res[1], name = res[2], quantity = res[3], cost = res[4], weight = res[5])
+            return item
+        except Error:
+            raise
 
     def execute_query(self, query):
-        cursor = self.cursor()
         try:
-            cursor.execute(query)
-            self.connection.commit()
-            print("Query executed successfully")
-        except Error as e:
+            with sqlite3.connect(self.path) as conn:
+                conn.cursor().execute(query)
+        except Error:
             raise

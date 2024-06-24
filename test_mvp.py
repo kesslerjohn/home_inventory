@@ -55,7 +55,7 @@ def test_item_from_db():
     # initialize a bunch of items given uuids and test their properties
     ids = [str(uuid4()) for i in range(1000)]
     for j in range(1000):
-        testItem = itemFactory(ids[j])
+        testItem = conn.getItem(ids[j])
         assert len(testItem.uuid) == len(str(uuid4()))
         assert testItem.quantity >= 0
         assert testItem.cost >= 0
@@ -63,19 +63,19 @@ def test_item_from_db():
         assert testItem.units in unitslist
         assert testItem.uuid in ids
 
-def test_connection():
-    # should accept a valid connection
-    pass
-
 def test_create_item():
     # test adding items to the database
+
     pass
 
 def test_increment():
+    # test increasing quantity of item
     pass
 
 def test_decrement():
+    # test decreasing quantity of item
     pass
 
 def test_delete_item():
+    # test deleting item from database
     pass
