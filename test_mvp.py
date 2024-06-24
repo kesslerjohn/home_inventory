@@ -12,18 +12,11 @@ names_qry = "SELECT uuid, name FROM items;"
 
 global nameslist
 global unitslist
-global path
+global conn
 
 path = os.getcwd() + '/inventory.sqlite'
 
-con = Connection(path)
-con.cursor().execute(names_qry).fetchall()
-
-pliers = con.getItem('0a6e74b1-f5cf-4579-8bf9-d103b6032c95')
-
-pliers.name
-pliers.uuid
-pliers.quantity
+conn = Connection(path)
 
 with open("formatted_nouns.txt", mode = "r") as fp:
     nameslist = json.load(fp)
@@ -72,16 +65,17 @@ def test_item_from_db():
 
 def test_connection():
     # should accept a valid connection
-    con = Connection(path)
     pass
 
 def test_create_item():
     # test adding items to the database
-    con = Connection(path)
     pass
 
 def test_increment():
     pass
 
 def test_decrement():
+    pass
+
+def test_delete_item():
     pass
