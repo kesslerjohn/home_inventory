@@ -67,7 +67,7 @@ def test_item_from_db():
         assert testItem.units in unitslist
 
 def test_create_item():
-    # test adding items to the database
+    # test adding items to the database 
     # for k in range(len(items)):
     #    conn.create(items[k])
     pass
