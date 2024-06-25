@@ -22,7 +22,7 @@ conn = Connection(path)
 with open("formatted_nouns.txt", mode = "r") as fp:
     nameslist = json.load(fp)
 
-unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp"]
+unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
 
 def itemFactory(uuid = "") -> Item:
     idx1 = randint(len(nameslist))

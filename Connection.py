@@ -23,7 +23,7 @@ class Connection(object):
         if (path.split("/")[-1]) not in os.listdir():
             with sqlite3.connect(path) as conn:
                 conn.cursor().execute(self.table_init)
-            warnings.warn(f"A SQLite DB named {path.split("/")[-1]} was not found at the path given. A new SQLite DB will be created.")
+            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. A new SQLite DB will be created.")
     
     # all these functions return 0 or 1 status code
     def incrementQuantity(self, item : Item, by = 1) -> int:
@@ -56,7 +56,7 @@ class Connection(object):
     def create(self, item : Item) -> int:
         query = """
         INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet) 
-        VALUES ({});
+        VALUES ("{}", "{}", {}, {}, {}, "{}", "{}");
         """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet)
         with sqlite3.connect(self.path) as conn:
             conn.cursor().execute(query)
