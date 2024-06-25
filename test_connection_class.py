@@ -6,37 +6,14 @@ from numpy.random import randint
 from uuid import uuid4
 from Connection import Connection
 from Item import Item
+from utils import itemFactory, nameslist, unitslist
 import pytest
 
 global conn
 global indexItem
-global nameslist
 indexItem = 0
 
-with open("formatted_nouns.txt", mode = "r") as fp:
-    nameslist = load(fp)
-
 test_path = getcwd() + '/test_inventory.sqlite'
-
-unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
-
-def itemFactory(uuid = "", name = "") -> Item:
-    idx1 = randint(len(nameslist))
-    idx2 = randint(len(nameslist))
-
-    if name == "":
-        item_name = nameslist[idx1] + " " + nameslist[idx2]
-    else:
-        item_name = name
-    quantity = randint(maxsize/2)
-    cost = randint(maxsize)
-    weight = randint(maxsize)
-    units = unitslist[randint(len(unitslist))]
-
-    if uuid == "":
-        return Item(name = item_name, quantity = quantity, cost = cost, weight = weight, units = units)
-    else:
-        return Item(uuid = uuid, name = item_name, quantity = quantity, cost = cost, weight = weight, units = units) 
 
 items = [itemFactory(str(uuid4())) for i in range(1000)]
 
@@ -48,37 +25,6 @@ def test_init_db():
     global conn
     with warns(UserWarning, match = "A SQLite DB named test_inventory.sqlite was not found"):
         conn = Connection(test_path)
-
-def test_init_item_default():
-    # test initializing a single item with all default values
-    testItem = Item()
-    assert len(testItem.uuid) == len(str(uuid4()))
-    assert testItem.name == ""
-    assert testItem.quantity == 0
-    assert testItem.cost == 0
-    assert testItem.weight == 0
-    assert testItem.units == "each"
-    assert testItem.datasheet == ""
-
-def test_item_methods():
-    testItem = itemFactory()
-    assert testItem.printCost() == f"${testItem.cost*100:,.2f}/{testItem.units}"
-    assert testItem.printName() == testItem.name.capitalize()
-    assert testItem.printQuantity() == f"{testItem.quantity} {testItem.units}"
-
-def test_init_many_items():
-    # initialize a bunch of items with empty uuids and test their properties
-    # this is really testing itemFactory() as much as anything
-    ids = []
-    for i in range(1000):
-        testItem = itemFactory()
-        assert len(testItem.uuid) == len(str(uuid4()))
-        assert testItem.quantity >= 0
-        assert testItem.cost >= 0
-        assert testItem.weight >= 0
-        assert testItem.units in unitslist
-        ids.append(testItem.uuid)
-    assert len(set(ids)) == len(ids)
 
 def test_create_item():
     res = []

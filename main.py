@@ -3,6 +3,7 @@ import warnings
 from database_utils import *
 from qr_utils import *
 from Item import Item
+from Connection import Connection
 
 # basic idea:
 # generate QR codes for inventory
@@ -43,29 +44,8 @@ modes = ['start', 'reset', 'create_item', 'modify_item', 'delete_item']
 #TODO: Refactor all this to handle new data structures.
 
 def setup():
-    connection = create_connection('inventory.sqlite')
-
-    create_items_table = """
-        CREATE TABLE IF NOT EXISTS items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        uuid TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
-        quantity INTEGER,
-        cost_per_unit INTEGER,
-        weight FLOAT(6, 2),
-        units TEXT,
-        datasheet TEXT
-        );
-        """
-
-    execute_query(connection, create_items_table)
-
-    if not (os.getcwd() == "/Users/jkessler/Desktop/Projects/python_assorted/inventory"):
-        os.chdir("/Users/jkessler/Desktop/Projects/python_assorted/inventory")
-
-    if ('inventory.sqlite' not in os.listdir()):
-        warn_msg = "The inventory file was not found. A new file will be created."
-        warnings.warn(warn_msg)
+    path = os.getcwd() + '/test_inventory.sqlite'
+    connection = Connection(path)
 
     return connection
 

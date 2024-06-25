@@ -23,7 +23,7 @@ class Connection(object):
         if (path.split("/")[-1]) not in os.listdir():
             with sqlite3.connect(path) as conn:
                 conn.cursor().execute(self.table_init)
-            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. A new SQLite DB will be created.",
+            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. \nA new SQLite DB will be created in {path[:path.rfind('/')]}.",
                           UserWarning)
     
     # all these functions return 0 or 1 status code
