@@ -2,11 +2,14 @@ from Item import Item
 import sqlite3
 from sqlite3 import Error
 import warnings
+import os
 
 class Connection(object):
     def __init__(self, path):
         super().__init__()
         self.path = path
+        if (path.split("/")[-1]) not in os.listdir():
+            warnings.warn(f"A SQLite DB named {path.split("/")[-1]} was not found at the path given. A new SQLite DB will be created.")
     
     # all these functions return 0 or 1 status code
     def incrementQuantity(self, item : Item, by = 1) -> int:

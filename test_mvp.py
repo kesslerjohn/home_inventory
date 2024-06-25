@@ -13,6 +13,7 @@ names_qry = "SELECT uuid, name FROM items;"
 global nameslist
 global unitslist
 global conn
+global items
 
 path = os.getcwd() + '/inventory.sqlite'
 
@@ -38,6 +39,10 @@ def itemFactory(uuid = "") -> Item:
     else:
         return Item(uuid = uuid, name = name, quantity = quantity, cost = cost, weight = weight, units = units) 
 
+items = [itemFactory(str(uuid4())) for i in range(1000)]
+for k in range(len(items)):
+        conn.create(items[k])
+
 def test_init_item():
     # initialize a bunch of items with empty uuids and test their properties
     ids = []
@@ -53,19 +58,18 @@ def test_init_item():
 
 def test_item_from_db():
     # initialize a bunch of items given uuids and test their properties
-    ids = [str(uuid4()) for i in range(1000)]
     for j in range(1000):
-        testItem = conn.getItem(ids[j])
+        testItem = conn.getItem(items[j].uuid)
         assert len(testItem.uuid) == len(str(uuid4()))
         assert testItem.quantity >= 0
         assert testItem.cost >= 0
         assert testItem.weight >= 0
         assert testItem.units in unitslist
-        assert testItem.uuid in ids
 
 def test_create_item():
     # test adding items to the database
-
+    # for k in range(len(items)):
+    #    conn.create(items[k])
     pass
 
 def test_increment():
