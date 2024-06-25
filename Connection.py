@@ -28,8 +28,11 @@ class Connection(object):
     
     # all these functions return 0 or 1 status code
     def incrementQuantity(self, item : Item, by = 1) -> int:
+        if by <= 0:
+            warnings.warn("You cannot increment by a non-positive value. Please use decrementQuantity to reduce the count.", UserWarning)
+            return 1
         item.quantity = item.quantity + by 
-        query = f"UPDATE items SET quantity = {item.quantity} WHERE uuid = {item.uuid}"
+        query = f'UPDATE items SET quantity = {item.quantity} WHERE uuid = "{item.uuid}"'
         with sqlite3.connect(self.path) as conn:
             conn.execute(query)
         return 0
@@ -41,9 +44,13 @@ class Connection(object):
             If you are sure this is the correct quantity to remove, then inventory may need to 
             be updated to reflect the correct quantity.
             """
-            warnings.warn(msg)
+            warnings.warn(msg, UserWarning)
+            return 1
+        elif by <= 0:
+            warnings.warn("You cannot decrement by a non-positive value. Please use incrementQuantity to increase the count.", UserWarning)
+            return 1
         item.quantity = item.quantity - by 
-        query = f"UPDATE items SET quantity = {item.quantity} WHERE uuid = {item.uuid}"
+        query = f'UPDATE items SET quantity = {item.quantity} WHERE uuid = "{item.uuid}";'
         with sqlite3.connect(self.path) as conn:
             conn.execute(query)
         return 0

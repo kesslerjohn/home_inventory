@@ -1,4 +1,4 @@
-import os
+from os import remove, listdir, getcwd
 from sys import maxsize
 from json import load
 from pytest import warns
@@ -7,18 +7,15 @@ from uuid import uuid4
 from Connection import Connection
 from Item import Item
 
-# global nameslist
-# global unitslist
 global conn
-# global items
 
-if ('test_inventory.sqlite') in os.listdir():
-    os.remove('test_inventory.sqlite')
+if ('test_inventory.sqlite') in listdir():
+    remove('test_inventory.sqlite')
 
 with open("formatted_nouns.txt", mode = "r") as fp:
     nameslist = load(fp)
 
-test_path = os.getcwd() + '/test_inventory.sqlite'
+test_path = getcwd() + '/test_inventory.sqlite'
 
 unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
 
@@ -77,14 +74,56 @@ def test_item_from_db():
         assert testItem.weight >= 0
         assert testItem.units in unitslist
 
-def test_increment():
-    # test increasing quantity of item
+def test_increment_by_default():
+    # test increasing quantity of item by default value of 1
+    item = items[0]
+    pre = item.quantity
+    out = conn.incrementQuantity(item)
+    assert out == 0
+    assert conn.getItem(item.uuid).quantity == (pre + 1)
 
-    pass
+def test_increment_by_value():
+    # test increasing quantity of item by passed-in value
+    item = items[1]
+    pre = item.quantity 
+    num = randint(maxsize/2)
+    out = conn.incrementQuantity(item, num)
+    assert out == 0
+    assert conn.getItem(item.uuid).quantity == (pre + num)
 
-def test_decrement():
-    # test decreasing quantity of item
-    pass
+def test_increment_by_negative():
+    # test trying to call incrementQuantity with a negative value for by
+    item = items[2]
+    num = -1*randint(maxsize)
+    with warns(UserWarning, match = "You cannot increment by a non-positive value. Please use decrementQuantity"):
+       out = conn.incrementQuantity(item, num)
+    assert out == 1 
+
+def test_decrement_by_default():
+    # test increasing quantity of item by default value of 1
+    item = items[3]
+    pre = item.quantity
+    out = conn.decrementQuantity(item)
+    assert out == 0
+    assert conn.getItem(item.uuid).quantity == (pre - 1)
+
+def test_decrement_by_value():
+    # test increasing quantity of item by passed-in value
+    item = items[4]
+    conn.decrementQuantity(item, randint(maxsize/2))
+    pre = item.quantity
+    num = randint(pre)
+    out = conn.decrementQuantity(item, num)
+    assert out == 0
+    assert conn.getItem(item.uuid).quantity == (pre - num)
+
+def test_decrement_by_negative():
+    # test trying to call incrementQuantity with a negative value for by
+    item = items[5]
+    num = -1*randint(maxsize)
+    with warns(UserWarning, match = "You cannot decrement by a non-positive value. Please use incrementQuantity"):
+       out = conn.decrementQuantity(item, num)
+    assert out == 1 
 
 def test_delete_item():
     # test deleting item from database
