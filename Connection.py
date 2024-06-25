@@ -65,6 +65,10 @@ class Connection(object):
         return 0
 
     def destroy(self, item : Item) -> int:
+        # remove an item from the database completely
+        # may not be strictly part of the MVP, since the necessary use case is unclear
+        # requires an Item and not just a uuid to enforce that the item
+        # should be in the DB to begin with
         return 0
     
     def search(self, term : str) -> list[tuple]:

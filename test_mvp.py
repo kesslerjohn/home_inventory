@@ -6,11 +6,11 @@ from numpy.random import randint
 from uuid import uuid4
 from Connection import Connection
 from Item import Item
+import pytest
 
 global conn
-
-if ('test_inventory.sqlite') in listdir():
-    remove('test_inventory.sqlite')
+global indexItem
+indexItem = 0
 
 with open("formatted_nouns.txt", mode = "r") as fp:
     nameslist = load(fp)
@@ -24,7 +24,7 @@ def itemFactory(uuid = "") -> Item:
     idx2 = randint(len(nameslist))
 
     name = nameslist[idx1] + " " + nameslist[idx2]
-    quantity = randint(maxsize)
+    quantity = randint(maxsize/2)
     cost = randint(maxsize)
     weight = randint(maxsize)
     units = unitslist[randint(len(unitslist))]
@@ -38,12 +38,25 @@ items = [itemFactory(str(uuid4())) for i in range(1000)]
 
 def test_init_db():
     # test that a warning is raised when connecting to a db file not in the cwd.
+    if ('test_inventory.sqlite') in listdir():
+        remove('test_inventory.sqlite')
+
     global conn
     with warns(UserWarning, match = "A SQLite DB named test_inventory.sqlite was not found"):
         conn = Connection(test_path)
 
+def test_init_item_default():
+    # test initializing a single item with all default values
+    testItem = Item()
+    assert len(testItem.uuid) == len(str(uuid4()))
+    assert testItem.name == ""
+    assert testItem.quantity == 0
+    assert testItem.cost == 0
+    assert testItem.weight == 0
+    assert testItem.units == "each"
+    assert testItem.datasheet == ""
 
-def test_init_item():
+def test_init_many_items():
     # initialize a bunch of items with empty uuids and test their properties
     # this is really testing itemFactory() as much as anything
     ids = []
@@ -76,55 +89,76 @@ def test_item_from_db():
 
 def test_increment_by_default():
     # test increasing quantity of item by default value of 1
-    item = items[0]
+    global indexItem
+    item = items[indexItem]
     pre = item.quantity
     out = conn.incrementQuantity(item)
     assert out == 0
     assert conn.getItem(item.uuid).quantity == (pre + 1)
+    indexItem += 1
 
 def test_increment_by_value():
     # test increasing quantity of item by passed-in value
-    item = items[1]
+    global indexItem
+    item = items[indexItem]
     pre = item.quantity 
     num = randint(maxsize/2)
     out = conn.incrementQuantity(item, num)
     assert out == 0
     assert conn.getItem(item.uuid).quantity == (pre + num)
+    indexItem += 1
 
 def test_increment_by_negative():
     # test trying to call incrementQuantity with a negative value for by
-    item = items[2]
+    global indexItem
+    item = items[indexItem]
     num = -1*randint(maxsize)
     with warns(UserWarning, match = "You cannot increment by a non-positive value. Please use decrementQuantity"):
        out = conn.incrementQuantity(item, num)
     assert out == 1 
+    indexItem += 1
 
 def test_decrement_by_default():
-    # test increasing quantity of item by default value of 1
-    item = items[3]
+    # test decreasing quantity of item by default value of 1
+    global indexItem
+    item = items[indexItem]
     pre = item.quantity
     out = conn.decrementQuantity(item)
     assert out == 0
     assert conn.getItem(item.uuid).quantity == (pre - 1)
+    indexItem += 1
 
 def test_decrement_by_value():
-    # test increasing quantity of item by passed-in value
-    item = items[4]
+    # test decreasing quantity of item by passed-in value
+    global indexItem
+    item = items[indexItem]
     conn.decrementQuantity(item, randint(maxsize/2))
     pre = item.quantity
     num = randint(pre)
     out = conn.decrementQuantity(item, num)
     assert out == 0
     assert conn.getItem(item.uuid).quantity == (pre - num)
+    indexItem += 1
 
 def test_decrement_by_negative():
-    # test trying to call incrementQuantity with a negative value for by
-    item = items[5]
+    # test trying to call decrementQuantity with a negative value for by
+    global indexItem
+    item = items[indexItem]
     num = -1*randint(maxsize)
     with warns(UserWarning, match = "You cannot decrement by a non-positive value. Please use incrementQuantity"):
        out = conn.decrementQuantity(item, num)
     assert out == 1 
+    indexItem += 1
 
-def test_delete_item():
+@pytest.mark.xfail
+def test_destroy_item():
     # test deleting item from database
-    pass
+    global indexItem
+    item = items[indexItem]
+    out = conn.destroy(item)
+    assert out == 0
+
+    with warns(UserWarning, match = "The selected item is not in the database"):
+        out = conn.getItem(item.uuid)
+    assert out == 1
+
