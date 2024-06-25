@@ -10,6 +10,7 @@ import pytest
 
 global conn
 global indexItem
+global nameslist
 indexItem = 0
 
 with open("formatted_nouns.txt", mode = "r") as fp:
@@ -19,20 +20,23 @@ test_path = getcwd() + '/test_inventory.sqlite'
 
 unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
 
-def itemFactory(uuid = "") -> Item:
+def itemFactory(uuid = "", name = "") -> Item:
     idx1 = randint(len(nameslist))
     idx2 = randint(len(nameslist))
 
-    name = nameslist[idx1] + " " + nameslist[idx2]
+    if name == "":
+        item_name = nameslist[idx1] + " " + nameslist[idx2]
+    else:
+        item_name = name
     quantity = randint(maxsize/2)
     cost = randint(maxsize)
     weight = randint(maxsize)
     units = unitslist[randint(len(unitslist))]
 
     if uuid == "":
-        return Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units)
+        return Item(name = item_name, quantity = quantity, cost = cost, weight = weight, units = units)
     else:
-        return Item(uuid = uuid, name = name, quantity = quantity, cost = cost, weight = weight, units = units) 
+        return Item(uuid = uuid, name = item_name, quantity = quantity, cost = cost, weight = weight, units = units) 
 
 items = [itemFactory(str(uuid4())) for i in range(1000)]
 
@@ -175,3 +179,31 @@ def test_destroy_nonexistent_item():
     with warns(UserWarning, match = "No item with this UUID was found in the database."):
         out = conn.destroy(item)
     assert out == 1
+
+def test_search_connection():
+    # test whether searching returns objects with similar names
+    global nameslist
+    noun = nameslist[randint(len(nameslist))]
+    names = [nameslist[randint(len(nameslist))] + " " + noun for i in range(10)]
+    names += [noun + " " + nameslist[randint(len(nameslist))] for i in range(10)]
+    names += [nameslist[randint(len(nameslist))] + " " + noun + " " + nameslist[randint(len(nameslist))] for i in range(10)]
+    for name in names:
+        conn.create(itemFactory(name = name))
+    out = conn.search(noun)
+    assert len(out) >= 30
+
+def test_search_no_results():
+    name = str(randint(1000, 10000))
+    out = conn.search(name)
+    assert len(out) == 0
+
+def test_search_empty_string():
+    out = conn.search("")
+    assert len(out) == 0
+
+@pytest.mark.xfail
+def test_execute_query():
+    # test whether execute_query() really does its job
+    # TODO: decide whether this method needs to exist or should be replaced by 
+    #       methods for specific actions
+    assert False

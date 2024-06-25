@@ -77,6 +77,8 @@ class Connection(object):
         return 0
     
     def search(self, term : str) -> list[tuple]:
+        if term == "":
+            return []
         query = f"SELECT * FROM items WHERE name LIKE '%{term}%';"
         with sqlite3.connect(self.path) as conn:
             res = conn.cursor().execute(query).fetchall()
