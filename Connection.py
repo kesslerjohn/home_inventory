@@ -69,6 +69,11 @@ class Connection(object):
         # may not be strictly part of the MVP, since the necessary use case is unclear
         # requires an Item and not just a uuid to enforce that the item
         # should be in the DB to begin with
+        if self.getItem(item.uuid) == 1:
+            return 1
+        query = f'DELETE FROM items WHERE uuid="{item.uuid}";'
+        with sqlite3.connect(self.path) as conn:
+            conn.cursor().execute(query)
         return 0
     
     def search(self, term : str) -> list[tuple]:
@@ -81,6 +86,9 @@ class Connection(object):
         query = f'SELECT * FROM items WHERE uuid = "{uuid}";'
         with sqlite3.connect(self.path) as conn:
             res = conn.cursor().execute(query).fetchone()
+        if res is None:
+            warnings.warn("No item with this UUID was found in the database.", UserWarning)
+            return 1
         item = Item(uuid = res[1], name = res[2], quantity = res[3], cost = res[4], weight = res[5])
         return item
 

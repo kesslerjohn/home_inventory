@@ -15,7 +15,7 @@ class Item(object):
         self.datasheet = datasheet
 
     def printCost(self) -> str:
-        return f"${self.cost*100:,:.2f}/{self.units}"
+        return f"${self.cost*100:,.2f}/{self.units}"
     
     def printName(self) -> str:
         return self.name.capitalize()

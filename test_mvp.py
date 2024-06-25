@@ -56,6 +56,12 @@ def test_init_item_default():
     assert testItem.units == "each"
     assert testItem.datasheet == ""
 
+def test_item_methods():
+    testItem = itemFactory()
+    assert testItem.printCost() == f"${testItem.cost*100:,.2f}/{testItem.units}"
+    assert testItem.printName() == testItem.name.capitalize()
+    assert testItem.printQuantity() == f"{testItem.quantity} {testItem.units}"
+
 def test_init_many_items():
     # initialize a bunch of items with empty uuids and test their properties
     # this is really testing itemFactory() as much as anything
@@ -132,9 +138,9 @@ def test_decrement_by_value():
     # test decreasing quantity of item by passed-in value
     global indexItem
     item = items[indexItem]
-    conn.decrementQuantity(item, randint(maxsize/2))
     pre = item.quantity
     num = randint(pre)
+    assert num <= pre
     out = conn.decrementQuantity(item, num)
     assert out == 0
     assert conn.getItem(item.uuid).quantity == (pre - num)
@@ -150,7 +156,6 @@ def test_decrement_by_negative():
     assert out == 1 
     indexItem += 1
 
-@pytest.mark.xfail
 def test_destroy_item():
     # test deleting item from database
     global indexItem
@@ -158,7 +163,15 @@ def test_destroy_item():
     out = conn.destroy(item)
     assert out == 0
 
-    with warns(UserWarning, match = "The selected item is not in the database"):
+    # test that item is really gone
+    with warns(UserWarning, match = "No item with this UUID was found in the database."):
         out = conn.getItem(item.uuid)
     assert out == 1
 
+def test_destroy_nonexistent_item():
+    # test trying to delete an item that isn't in the database
+    item = itemFactory()
+
+    with warns(UserWarning, match = "No item with this UUID was found in the database."):
+        out = conn.destroy(item)
+    assert out == 1
