@@ -1,26 +1,24 @@
 import os
-import sys
-import json
-import pytest
-import sqlite3
+from sys import maxsize
+from json import load
+from pytest import warns
 from numpy.random import randint
 from uuid import uuid4
 from Connection import Connection
 from Item import Item
 
-names_qry = "SELECT uuid, name FROM items;"
-
-global nameslist
-global unitslist
+# global nameslist
+# global unitslist
 global conn
-global items
+# global items
 
-path = os.getcwd() + '/inventory.sqlite'
-
-conn = Connection(path)
+if ('test_inventory.sqlite') in os.listdir():
+    os.remove('test_inventory.sqlite')
 
 with open("formatted_nouns.txt", mode = "r") as fp:
-    nameslist = json.load(fp)
+    nameslist = load(fp)
+
+test_path = os.getcwd() + '/test_inventory.sqlite'
 
 unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
 
@@ -29,9 +27,9 @@ def itemFactory(uuid = "") -> Item:
     idx2 = randint(len(nameslist))
 
     name = nameslist[idx1] + " " + nameslist[idx2]
-    quantity = randint(sys.maxsize)
-    cost = randint(sys.maxsize)
-    weight = randint(sys.maxsize)
+    quantity = randint(maxsize)
+    cost = randint(maxsize)
+    weight = randint(maxsize)
     units = unitslist[randint(len(unitslist))]
 
     if uuid == "":
@@ -40,11 +38,17 @@ def itemFactory(uuid = "") -> Item:
         return Item(uuid = uuid, name = name, quantity = quantity, cost = cost, weight = weight, units = units) 
 
 items = [itemFactory(str(uuid4())) for i in range(1000)]
-for k in range(len(items)):
-        conn.create(items[k])
+
+def test_init_db():
+    # test that a warning is raised when connecting to a db file not in the cwd.
+    global conn
+    with warns(UserWarning, match = "A SQLite DB named test_inventory.sqlite was not found"):
+        conn = Connection(test_path)
+
 
 def test_init_item():
     # initialize a bunch of items with empty uuids and test their properties
+    # this is really testing itemFactory() as much as anything
     ids = []
     for i in range(1000):
         testItem = itemFactory()
@@ -56,8 +60,15 @@ def test_init_item():
         ids.append(testItem.uuid)
     assert len(set(ids)) == len(ids)
 
+def test_create_item():
+    res = []
+    for k in range(len(items)):
+        res.append(conn.create(items[k]))
+    # check that all creations worked
+    assert all([i == 0 for i in res])
+
 def test_item_from_db():
-    # initialize a bunch of items given uuids and test their properties
+    # I initialized a bunch of items earlier and this gets them and checks if they are real
     for j in range(1000):
         testItem = conn.getItem(items[j].uuid)
         assert len(testItem.uuid) == len(str(uuid4()))
@@ -66,14 +77,9 @@ def test_item_from_db():
         assert testItem.weight >= 0
         assert testItem.units in unitslist
 
-def test_create_item():
-    # test adding items to the database 
-    # for k in range(len(items)):
-    #    conn.create(items[k])
-    pass
-
 def test_increment():
     # test increasing quantity of item
+
     pass
 
 def test_decrement():

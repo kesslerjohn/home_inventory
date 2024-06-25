@@ -23,18 +23,16 @@ class Connection(object):
         if (path.split("/")[-1]) not in os.listdir():
             with sqlite3.connect(path) as conn:
                 conn.cursor().execute(self.table_init)
-            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. A new SQLite DB will be created.")
+            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. A new SQLite DB will be created.",
+                          UserWarning)
     
     # all these functions return 0 or 1 status code
     def incrementQuantity(self, item : Item, by = 1) -> int:
         item.quantity = item.quantity + by 
         query = f"UPDATE items SET quantity = {item.quantity} WHERE uuid = {item.uuid}"
-        try:
-            with sqlite3.connect(self.path) as conn:
-                conn.execute(query)
-            return 0
-        except Error:
-            raise
+        with sqlite3.connect(self.path) as conn:
+            conn.execute(query)
+        return 0
 
     def decrementQuantity(self, item : Item, by = 1) -> int:
         if by > item.quantity:
@@ -46,12 +44,9 @@ class Connection(object):
             warnings.warn(msg)
         item.quantity = item.quantity - by 
         query = f"UPDATE items SET quantity = {item.quantity} WHERE uuid = {item.uuid}"
-        try:
-            with sqlite3.connect(self.path) as conn:
-                conn.execute(query)
-            return 0
-        except Error:
-            raise
+        with sqlite3.connect(self.path) as conn:
+            conn.execute(query)
+        return 0
 
     def create(self, item : Item) -> int:
         query = """
@@ -67,26 +62,17 @@ class Connection(object):
     
     def search(self, term : str) -> list[tuple]:
         query = f"SELECT * FROM items WHERE name LIKE '%{term}%';"
-        try:
-            with sqlite3.connect(self.path) as conn:
-                res = conn.cursor().execute(query).fetchall()
-            return res
-        except Error:
-            raise
+        with sqlite3.connect(self.path) as conn:
+            res = conn.cursor().execute(query).fetchall()
+        return res
 
     def getItem(self, uuid: str) -> Item:
         query = f'SELECT * FROM items WHERE uuid = "{uuid}";'
-        try:
-            with sqlite3.connect(self.path) as conn:
-                res = conn.cursor().execute(query).fetchone()
-            item = Item(uuid = res[1], name = res[2], quantity = res[3], cost = res[4], weight = res[5])
-            return item
-        except Error:
-            raise
+        with sqlite3.connect(self.path) as conn:
+            res = conn.cursor().execute(query).fetchone()
+        item = Item(uuid = res[1], name = res[2], quantity = res[3], cost = res[4], weight = res[5])
+        return item
 
     def execute_query(self, query):
-        try:
-            with sqlite3.connect(self.path) as conn:
-                conn.cursor().execute(query)
-        except Error:
-            raise
+        with sqlite3.connect(self.path) as conn:
+            conn.cursor().execute(query)
