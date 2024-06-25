@@ -1,7 +1,6 @@
 import os
 import warnings
 from database_utils import *
-from qr_utils import *
 from Item import Item
 from Connection import Connection
 
@@ -36,7 +35,7 @@ from Connection import Connection
 # 2. 'reset' prepares to completely remake the 
 #       inventory, item by item. 
 # 3. 'create_item' 
-global connection
+global conn
 global mode
 global modes
 modes = ['start', 'reset', 'create_item', 'modify_item', 'delete_item']
@@ -45,9 +44,9 @@ modes = ['start', 'reset', 'create_item', 'modify_item', 'delete_item']
 
 def setup():
     path = os.getcwd() + '/test_inventory.sqlite'
-    connection = Connection(path)
+    conn = Connection(path)
 
-    return connection
+    return 0
 
 def loop():
     userEvent = input(":> ")
@@ -57,19 +56,22 @@ def loop():
         else:
             mode = userEvent
     elif mode == "create_item":
-        insert, qr = newItem()
+        name = input("Item name: ")
+        quantity = input("Quantity: ")
+        cost = input("Cost: ")
+        weight = input("Weight: ")
+        units = input("Units: ")
+        datasheet = input("Datasheet: ")
+        item = Item(name = name, quantity = int(quantity), cost = int(cost), weight = float(weight), units = units, datasheet = datasheet)
+        conn.create(item)
+        qr = bool(int(input("Item added to database. Make QR Code? ")))
+        if qr:
+            item.makeQrCode(os.getcwd())
         mode = "start"
     return 0
 
 if __name__ == "__main__":
-    connection = setup()
-
-    insert, qr = newItem()
-
-    print("QR created.")
-    qr.save("test.png")
-
-    execute_query(connection, insert)
+    setup()
 
     while True:
         loop()
