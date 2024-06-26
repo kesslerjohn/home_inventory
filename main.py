@@ -6,8 +6,6 @@ from Connection import Connection
 
 # basic idea:
 # generate QR codes for inventory
-# buy a mini QR scanner to handle reading
-# to avoid having to build that hardward myself
 # interface with the raspberry pi or an old
 # salvaged computer that I can just run all the time
 
@@ -23,9 +21,9 @@ from Connection import Connection
 # starting with sqlite3 for MVP and will deploy to
 # network SQL server later
 
-# | uuid | name | quantity | cost | weight | units | datasheet |
-# |------|------|----------|------|--------|-------|-----------|
-#                   ...
+# | uuid | name | quantity | cost | weight | units | datasheet | date_added |
+# |------|------|----------|------|--------|-------|-----------|------------|
+#                                   ...
 
 # unique and constant, should be available everywhere
 # connection stores the connection to the sql database

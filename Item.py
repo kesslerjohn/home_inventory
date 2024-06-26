@@ -17,7 +17,7 @@ class Item(object):
         self.datasheet = datasheet
         self._fontsize = 24
         self._fontsize_px = self._fontsize*(72/96)
-        self._font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", self._fontsize)
+        self._font = ImageFont.truetype("./resources/Helvetica.ttc", self._fontsize)
 
     def printCost(self) -> str:
         return f"${self.cost*100:,.2f}/{self.units}"
