@@ -18,7 +18,8 @@ class Connection(object):
         cost_per_unit INTEGER,
         weight FLOAT(6, 2),
         units TEXT,
-        datasheet TEXT
+        datasheet TEXT, 
+        date_added TEXT
         );
         """
         if (path.split("/")[-1]) not in os.listdir():
