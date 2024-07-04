@@ -22,7 +22,7 @@ def test_init_item_default():
 
 def test_item_methods():
     testItem = itemFactory()
-    assert testItem.printCost() == f"${testItem.cost*100:,.2f}/{testItem.units}"
+    assert testItem.printCost() == f"${testItem.cost/100:,.2f}/{testItem.units}"
     assert testItem.printName() == testItem.name.capitalize()
     assert testItem.printQuantity() == f"{testItem.quantity} {testItem.units}"
 
