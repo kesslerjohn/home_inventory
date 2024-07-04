@@ -41,26 +41,31 @@ global mode
 
 def reset(userEvent):
     #global conn
+    setup('/temp_resetdb.sqlite')
     next = True
     while next:
         create_item(userEvent)
         if input("Create another item? y/n ") == "n":
             next = False
+    print("Done. ")
     return 0
 
 def create_item(userEvent):
     print("\n"*10 + "Create an item.\n" + "="*10)
-    name = input(":> Item name: ")
-    quantity = input(":> Quantity: ")
-    cost = input(":> Cost: ")
-    weight = input(":> Weight: ")
-    units = input(":> Units: ")
-    datasheet = input(":> Datasheet: ")
-    conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
+    features = ["Item name", "Quantity", "Cost per unit", "Weight", "Units", "Datasheet"]
+    userIn = []
+    for f in features:
+        temp = input(f":> {f}: ")
+        if temp.lower() == "q":
+            print("Exiting. This item will not be created. ")
+            return 0
+        else:
+            userIn.append(temp)
+    conn.create(Item(name = userIn[0], quantity = userIn[1], cost = userIn[2], weight = userIn[3], units = userIn[4], datasheet = userIn[5]))
+    print("Done. ")
     return 0
 
 def modify_item(userEvent):
-    #global conn
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
     if (input("Add or remove items? a/r").lower() == "a"):
@@ -78,20 +83,19 @@ def delete_item(userEvent):
 
 events_d = {
     'reset': reset,
-    'create_item': create_item,
-    'modify_item': modify_item,
-    'delete_item': delete_item
+    'create': create_item,
+    'modify': modify_item,
+    'delete': delete_item
 }
-userEvent = 'modify_item'
+userEvent = 'modify'
 
-#TODO: Refactor all this to handle new data structures.
-
-def setup():
-    path = os.getcwd() + '/fake_inventory.sqlite'
+def setup(db_file):
+    path = os.getcwd() + db_file
     return Connection(path)
 
 def loop():
     global conn
+    print("Enter mode: ")
     userEvent = input(":> ")
     if userEvent not in events_d.keys():
             print("Please give a valid mode")
@@ -101,7 +105,7 @@ def loop():
     return 0
 
 if __name__ == "__main__":
-    conn = setup()
+    conn = setup('/test_inventory.sqlite')
 
     while True:
         loop()

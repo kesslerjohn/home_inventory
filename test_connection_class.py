@@ -1,4 +1,5 @@
-from os import remove, listdir, getcwd
+from os import remove, listdir, getcwd, mkdir, rmdir, chdir, remove
+from glob import glob
 from sys import maxsize
 from json import load
 from pytest import warns
@@ -28,10 +29,22 @@ def test_init_db():
 
 def test_create_item():
     res = []
+    cdir = getcwd()
+    if "qr_tests" not in listdir():
+        mkdir("qr_tests")
+    chdir("qr_tests")
     for k in range(len(items)):
         res.append(conn.create(items[k]))
     # check that all creations worked
     assert all([i == 0 for i in res])
+
+    # clean up
+    for f in glob("*.png"):
+        remove(f)
+
+    chdir(cdir)
+
+    rmdir("qr_tests")
 
 def test_item_from_db():
     # I initialized a bunch of items earlier and this gets them and checks if they are real
@@ -133,10 +146,22 @@ def test_search_connection():
     names = [nameslist[randint(len(nameslist))] + " " + noun for i in range(10)]
     names += [noun + " " + nameslist[randint(len(nameslist))] for i in range(10)]
     names += [nameslist[randint(len(nameslist))] + " " + noun + " " + nameslist[randint(len(nameslist))] for i in range(10)]
+    cdir = getcwd()
+    if "search_tests" not in listdir():
+        mkdir("search_tests")
+    chdir("search_tests")
     for name in names:
         conn.create(itemFactory(name = name))
     out = conn.search(noun)
     assert len(out) >= 30
+
+    # clean up
+    for f in glob("*.png"):
+        remove(f)
+
+    chdir(cdir)
+
+    rmdir("search_tests")
 
 def test_search_no_results():
     name = str(randint(1000, 10000))
