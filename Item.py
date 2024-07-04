@@ -27,7 +27,7 @@ class Item(object):
         self._font = ImageFont.truetype("./resources/Helvetica.ttc", self._fontsize)
 
     def printCost(self) -> str:
-        return f"${self.cost*100:,.2f}/{self.units}"
+        return f"${self.cost/100:,.2f}/{self.units}"
     
     def printName(self) -> str:
         return self.name.capitalize()

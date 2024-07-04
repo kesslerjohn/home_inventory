@@ -38,19 +38,24 @@ from shutil import copy
 # 3. 'create_item' 
 global conn
 global mode
-global modes
-modes = ['reset', 'create_item', 'modify_item', 'delete_item']
 
 def reset(userEvent):
     global conn
-    print("\n"*10 + "Create next item.\n" + "="*10)
-    name = input(":> Item name: ")
-    quantity = input(":> Quantity: ")
-    cost = input(":> Cost: ")
-    weight = input(":> Weight: ")
-    units = input(":> Units: ")
-    datasheet = input(":> Datasheet: ")
-    conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
+    next = True
+    while next:
+        print("\n"*10 + "Create next item.\n" + "="*10)
+        name = input(":> Item name: ")
+        quantity = input(":> Quantity: ")
+        cost = input(":> Cost: ")
+        weight = input(":> Weight: ")
+        units = input(":> Units: ")
+        datasheet = input(":> Datasheet: ")
+        conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
+
+        userEvent = input("Continue? y/n ")
+        if userEvent == "n":
+            next = False
+        return 0
 
 def create_item(userEvent):
     global conn
@@ -58,7 +63,15 @@ def create_item(userEvent):
 
 def modify_item(userEvent):
     global conn
-    return 0
+    uuid = input("Scan QR: ")
+    item = conn.getItem(uuid)
+    add = ({'a': True, 'r': False})[input("Add or remove items? a/r").lower()]
+    if add:
+        by = int(input("Add how many? "))
+        return conn.incrementQuantity(item, by = by)
+    else:
+        by = int(input("Remove how many? "))
+        return conn.decrementQuantity(item, by = by)
 
 def delete_item(userEvent):
     global conn 
@@ -75,15 +88,17 @@ mode = 'modify_item'
 #TODO: Refactor all this to handle new data structures.
 
 def setup():
-    path = os.getcwd() + '/test_inventory.sqlite'
+    path = os.getcwd() + '/fake_inventory.sqlite'
     return Connection(path)
 
 def loop():
+    global conn
     userEvent = input(":> ")
     if userEvent not in events_d.keys():
             print("Please give a valid mode")
     else:
-        mode = userEvent
+        mode = events_d[userEvent]
+        mode(conn)
     return 0
 
 if __name__ == "__main__":
