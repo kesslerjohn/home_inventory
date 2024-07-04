@@ -40,33 +40,30 @@ global conn
 global mode
 
 def reset(userEvent):
-    global conn
+    #global conn
     next = True
     while next:
-        print("\n"*10 + "Create next item.\n" + "="*10)
-        name = input(":> Item name: ")
-        quantity = input(":> Quantity: ")
-        cost = input(":> Cost: ")
-        weight = input(":> Weight: ")
-        units = input(":> Units: ")
-        datasheet = input(":> Datasheet: ")
-        conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
-
-        userEvent = input("Continue? y/n ")
-        if userEvent == "n":
+        create_item(userEvent)
+        if input("Create another item? y/n ") == "n":
             next = False
-        return 0
+    return 0
 
 def create_item(userEvent):
-    global conn
+    print("\n"*10 + "Create an item.\n" + "="*10)
+    name = input(":> Item name: ")
+    quantity = input(":> Quantity: ")
+    cost = input(":> Cost: ")
+    weight = input(":> Weight: ")
+    units = input(":> Units: ")
+    datasheet = input(":> Datasheet: ")
+    conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
     return 0
 
 def modify_item(userEvent):
-    global conn
+    #global conn
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
-    add = ({'a': True, 'r': False})[input("Add or remove items? a/r").lower()]
-    if add:
+    if (input("Add or remove items? a/r").lower() == "a"):
         by = int(input("Add how many? "))
         return conn.incrementQuantity(item, by = by)
     else:
@@ -74,8 +71,10 @@ def modify_item(userEvent):
         return conn.decrementQuantity(item, by = by)
 
 def delete_item(userEvent):
-    global conn 
-    return 0
+    #global conn 
+    uuid = input("Scan QR: ")
+    item = conn.getItem(uuid) 
+    return conn.destroy(item)
 
 events_d = {
     'reset': reset,
