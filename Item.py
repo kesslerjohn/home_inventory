@@ -1,9 +1,10 @@
 from uuid import uuid4
 from qrcode import make
+from datetime import datetime, timezone, timedelta
 from PIL import ImageDraw, ImageFont
 
 class Item(object):
-    def __init__(self, uuid : str = "", name = "", quantity = 0, cost = 0, weight = 0, units = "each", datasheet = ""):
+    def __init__(self, uuid : str = "", name = "", quantity = 0, cost = 0, weight = 0, units = "each", datasheet = "", date_str = ""):
         super().__init__()
         if uuid == "":
             self.uuid = str(uuid4())
@@ -15,6 +16,12 @@ class Item(object):
         self.weight = weight
         self.units = units
         self.datasheet = datasheet
+        self._tzinfo = timezone(offset = -timedelta(hours = 5))
+        self._datetime_format = "%Y-%m-%d %H:%M:%S"
+        if date_str == "":
+            self.date_added = datetime.now(tz=self._tzinfo)
+        else:
+            self.date_added = datetime.strptime(date_str, self._datetime_format)
         self._fontsize = 24
         self._fontsize_px = self._fontsize*(72/96)
         self._font = ImageFont.truetype("./resources/Helvetica.ttc", self._fontsize)
@@ -27,6 +34,9 @@ class Item(object):
     
     def printQuantity(self) -> str:
         return f"{self.quantity} {self.units}"
+    
+    def printDateAdded(self) -> str:
+        return self.date_added.strftime(self._datetime_format)
     
     def makeQrCode(self, path):
         qr = make(self.uuid)

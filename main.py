@@ -3,6 +3,7 @@ import warnings
 from database_utils import *
 from Item import Item
 from Connection import Connection
+from shutil import copy
 
 # basic idea:
 # generate QR codes for inventory
@@ -39,8 +40,20 @@ global conn
 global mode
 global modes
 modes = ['reset', 'create_item', 'modify_item', 'delete_item']
-modes_d = {
-    'reset': 0,
+
+def reset(userEvent):
+    global conn
+    print("\n"*10 + "Create next item.\n" + "="*10)
+    name = input(":> Item name: ")
+    quantity = input(":> Quantity: ")
+    cost = input(":> Cost: ")
+    weight = input(":> Weight: ")
+    units = input(":> Units: ")
+
+
+
+events_d = {
+    'reset': reset,
     'create_item': 0,
     'modify_item': 0,
     'delete_item': 0
@@ -51,13 +64,11 @@ mode = 'modify_item'
 
 def setup():
     path = os.getcwd() + '/test_inventory.sqlite'
-    conn = Connection(path)
-
-    return 0
+    return Connection(path)
 
 def loop():
     userEvent = input(":> ")
-    if userEvent not in modes:
+    if userEvent not in events_d.keys():
             print("Please give a valid mode")
     else:
         mode = userEvent
@@ -80,7 +91,7 @@ def loop():
     return 0
 
 if __name__ == "__main__":
-    setup()
+    conn = setup()
 
     while True:
         loop()
