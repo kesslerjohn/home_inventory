@@ -82,7 +82,7 @@ events_d = {
     'modify_item': modify_item,
     'delete_item': delete_item
 }
-mode = 'modify_item'
+userEvent = 'modify_item'
 
 #TODO: Refactor all this to handle new data structures.
 
