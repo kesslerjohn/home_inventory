@@ -28,15 +28,24 @@ from Connection import Connection
 # unique and constant, should be available everywhere
 # connection stores the connection to the sql database
 # mode is an enumerable of operating modes:
-# 1. 'start' is the general standby mode. In this mode,
-#       the device waits for 
+# 1. 'modify item' is the default mode. Here, the user
+#       can scan an existing barcode, and then choose
+#       to either add or remove a number of items 
+#       of that type.
 # 2. 'reset' prepares to completely remake the 
 #       inventory, item by item. 
 # 3. 'create_item' 
 global conn
 global mode
 global modes
-modes = ['start', 'reset', 'create_item', 'modify_item', 'delete_item']
+modes = ['reset', 'create_item', 'modify_item', 'delete_item']
+modes_d = {
+    'reset': 0,
+    'create_item': 0,
+    'modify_item': 0,
+    'delete_item': 0
+}
+mode = 'modify_item'
 
 #TODO: Refactor all this to handle new data structures.
 
@@ -48,11 +57,13 @@ def setup():
 
 def loop():
     userEvent = input(":> ")
-    if mode == "start":
-        if userEvent not in modes:
+    if userEvent not in modes:
             print("Please give a valid mode")
-        else:
-            mode = userEvent
+    else:
+        mode = userEvent
+    
+    if mode == 'modify_item':
+        return 0
     elif mode == "create_item":
         name = input("Item name: ")
         quantity = input("Quantity: ")
