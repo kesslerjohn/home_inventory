@@ -58,9 +58,9 @@ class Connection(object):
 
     def create(self, item : Item) -> int:
         query = """
-        INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet) 
-        VALUES ("{}", "{}", {}, {}, {}, "{}", "{}");
-        """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet)
+        INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet, date_added) 
+        VALUES ("{}", "{}", {}, {}, {}, "{}", "{}", "{}");
+        """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet, item.printDateAdded)
         with sqlite3.connect(self.path) as conn:
             conn.cursor().execute(query)
         return 0
