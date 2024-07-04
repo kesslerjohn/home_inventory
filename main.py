@@ -49,14 +49,26 @@ def reset(userEvent):
     cost = input(":> Cost: ")
     weight = input(":> Weight: ")
     units = input(":> Units: ")
+    datasheet = input(":> Datasheet: ")
+    conn.create(Item(name = name, quantity = quantity, cost = cost, weight = weight, units = units, datasheet = datasheet))
 
+def create_item(userEvent):
+    global conn
+    return 0
 
+def modify_item(userEvent):
+    global conn
+    return 0
+
+def delete_item(userEvent):
+    global conn 
+    return 0
 
 events_d = {
     'reset': reset,
-    'create_item': 0,
-    'modify_item': 0,
-    'delete_item': 0
+    'create_item': create_item,
+    'modify_item': modify_item,
+    'delete_item': delete_item
 }
 mode = 'modify_item'
 
@@ -72,22 +84,6 @@ def loop():
             print("Please give a valid mode")
     else:
         mode = userEvent
-    
-    if mode == 'modify_item':
-        return 0
-    elif mode == "create_item":
-        name = input("Item name: ")
-        quantity = input("Quantity: ")
-        cost = input("Cost: ")
-        weight = input("Weight: ")
-        units = input("Units: ")
-        datasheet = input("Datasheet: ")
-        item = Item(name = name, quantity = int(quantity), cost = int(cost), weight = float(weight), units = units, datasheet = datasheet)
-        conn.create(item)
-        qr = bool(int(input("Item added to database. Make QR Code? ")))
-        if qr:
-            item.makeQrCode(os.getcwd())
-        mode = "start"
     return 0
 
 if __name__ == "__main__":
