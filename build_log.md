@@ -1,6 +1,7 @@
 ## Urgent:
  - Fix OS resource error when getting Helvetica font file
  - Use OS getcwd and string splitting/prefixing
+ - Interrupt modify item when UUID not found in db.
 
 ## TODO:
  - General mode management: allow user to change modes while in any mode
