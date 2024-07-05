@@ -83,11 +83,24 @@ def delete_item(userEvent):
     item = conn.getItem(uuid) 
     return conn.destroy(item)
 
+def view_item_info(userEvent):
+    uuid = input("Scan QR: ")
+    item = conn.getItem(uuid)
+    disp = """
+    Item name: {}
+    Quantity: {}
+    Cost: {}
+    Weight: {}g
+    Added on: {}
+    """.format(item.printName(), item.printQuantity(), item.printCost(), item.weight, item.printDateAdded())
+    print(disp)
+
 events_d = {
     'reset': reset,
     'create': create_item,
     'modify': modify_item,
-    'delete': delete_item
+    'delete': delete_item,
+    'view': view_item_info
 }
 userEvent = 'modify'
 
