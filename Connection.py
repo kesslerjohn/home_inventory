@@ -57,7 +57,7 @@ class Connection(object):
             conn.execute(query)
         return 0
 
-    def create(self, item : Item, path: None) -> int:
+    def create(self, item : Item, path = None) -> int:
         query = """
         INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet, date_added) 
         VALUES ("{}", "{}", {}, {}, {}, "{}", "{}", "{}");
