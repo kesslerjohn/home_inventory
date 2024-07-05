@@ -3,7 +3,8 @@ import warnings
 from database_utils import *
 from Item import Item
 from Connection import Connection
-from shutil import copy
+import customtkinter as ctk
+
 
 # basic idea:
 # generate QR codes for inventory
