@@ -57,12 +57,14 @@ class Connection(object):
             conn.execute(query)
         return 0
 
-    def create(self, item : Item) -> int:
+    def create(self, item : Item, path: None) -> int:
         query = """
         INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet, date_added) 
         VALUES ("{}", "{}", {}, {}, {}, "{}", "{}", "{}");
         """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet, item.printDateAdded)
-        item.makeQrCode(os.getcwd())
+        if path is None:
+            path = os.getcwd()
+        item.makeQrCode(path)
         with sqlite3.connect(self.path) as conn:
             conn.cursor().execute(query)
         return 0

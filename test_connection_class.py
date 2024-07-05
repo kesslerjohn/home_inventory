@@ -29,20 +29,17 @@ def test_init_db():
 
 def test_create_item():
     res = []
-    cdir = getcwd()
     if "qr_tests" not in listdir():
         mkdir("qr_tests")
-    chdir("qr_tests")
+    path = getcwd() + "/qr_tests"
     for k in range(len(items)):
-        res.append(conn.create(items[k]))
+        res.append(conn.create(items[k], ))
     # check that all creations worked
     assert all([i == 0 for i in res])
 
     # clean up
-    for f in glob("*.png"):
+    for f in glob("qr_tests/*.png"):
         remove(f)
-
-    chdir(cdir)
 
     rmdir("qr_tests")
 
@@ -149,17 +146,15 @@ def test_search_connection():
     cdir = getcwd()
     if "search_tests" not in listdir():
         mkdir("search_tests")
-    chdir("search_tests")
+    path = getcwd() + "/search_tests"
     for name in names:
-        conn.create(itemFactory(name = name))
+        conn.create(itemFactory(name = name), path)
     out = conn.search(noun)
     assert len(out) >= 30
 
     # clean up
-    for f in glob("*.png"):
+    for f in glob("search_tests/*.png"):
         remove(f)
-
-    chdir(cdir)
 
     rmdir("search_tests")
 
