@@ -6,9 +6,9 @@ import os
 from datetime import datetime, timezone, timedelta
 
 class Connection(object):
-    def __init__(self, path):
+    def __init__(self, dir_path, db_name):
         super().__init__()
-        self.path = path
+        self.path = f"{dir_path}/{db_name}"
         self.table_init = """
         CREATE TABLE IF NOT EXISTS items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,10 +22,10 @@ class Connection(object):
         date_added TEXT
         );
         """
-        if (path.split("/")[-1]) not in os.listdir():
-            with sqlite3.connect(path) as conn:
+        if (db_name) not in os.listdir(dir_path):
+            with sqlite3.connect(self.path) as conn:
                 conn.cursor().execute(self.table_init)
-            warnings.warn(f"A SQLite DB named {path.split('/')[-1]} was not found at the path given. \nA new SQLite DB will be created in {path[:path.rfind('/')]}.",
+            warnings.warn(f"A SQLite DB named {db_name} was not found at the path given. \nA new SQLite DB will be created in {dir_path}.",
                           UserWarning)
     
     # all these functions return 0 or 1 status code

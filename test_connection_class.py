@@ -14,8 +14,6 @@ global conn
 global indexItem
 indexItem = 0
 
-test_path = getcwd() + '/test_inventory.sqlite'
-
 items = [itemFactory(str(uuid4())) for i in range(100)]
 
 def test_init_db():
@@ -24,8 +22,9 @@ def test_init_db():
         remove('test_inventory.sqlite')
 
     global conn
+    db_name = 'test_inventory.sqlite'
     with warns(UserWarning, match = "A SQLite DB named test_inventory.sqlite was not found"):
-        conn = Connection(test_path)
+        conn = Connection(getcwd(), db_name)
 
 def test_create_item():
     res = []

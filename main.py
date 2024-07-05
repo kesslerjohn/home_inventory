@@ -36,23 +36,25 @@ from shutil import copy
 # 2. 'reset' prepares to completely remake the 
 #       inventory, item by item. 
 # 3. 'create_item' 
+
 global conn
 global mode
+global ref 
 
 def reset(userEvent):
-    #global conn
-    setup('/temp_resetdb.sqlite')
+    setup('temp_resetdb.sqlite')
     next = True
     while next:
         create_item(userEvent)
         if input("Create another item? y/n ") == "n":
             next = False
     print("Done. ")
+
     return 0
 
 def create_item(userEvent):
     print("\n"*10 + "Create an item.\n" + "="*10)
-    features = ["Item name", "Quantity", "Cost per unit", "Weight", "Units", "Datasheet"]
+    features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
     userIn = []
     for f in features:
         temp = input(f":> {f}: ")
@@ -61,7 +63,7 @@ def create_item(userEvent):
             return 0
         else:
             userIn.append(temp)
-    conn.create(Item(name = userIn[0], quantity = userIn[1], cost = userIn[2], weight = userIn[3], units = userIn[4], datasheet = userIn[5]))
+    conn.create(Item(name = userIn[0], units = userIn[1], cost = userIn[2], quantity = userIn[3], weight = userIn[4], datasheet = userIn[5]))
     print("Done. ")
     return 0
 
@@ -78,7 +80,6 @@ def modify_item(userEvent):
         return conn.decrementQuantity(item, by = by)
 
 def delete_item(userEvent):
-    #global conn 
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid) 
     return conn.destroy(item)
@@ -86,6 +87,8 @@ def delete_item(userEvent):
 def view_item_info(userEvent):
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
+    if item == 1:
+        return 1
     disp = """
     Item name: {}
     Quantity: {}
@@ -102,11 +105,9 @@ events_d = {
     'delete': delete_item,
     'view': view_item_info
 }
-userEvent = 'modify'
 
 def setup(db_file):
-    path = os.getcwd() + db_file
-    return Connection(path)
+    return Connection(ref, db_file)
 
 def loop():
     global conn
@@ -120,6 +121,8 @@ def loop():
     return 0
 
 if __name__ == "__main__":
+    ref = "/".join(__file__.split("/")[:-1])
+
     conn = setup('/test_inventory.sqlite')
 
     while True:
