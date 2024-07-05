@@ -33,7 +33,7 @@ def test_create_item():
         mkdir("qr_tests")
     path = getcwd() + "/qr_tests"
     for k in range(len(items)):
-        res.append(conn.create(items[k], ))
+        res.append(conn.create(items[k], path))
     # check that all creations worked
     assert all([i == 0 for i in res])
 

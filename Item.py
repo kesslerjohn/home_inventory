@@ -24,7 +24,7 @@ class Item(object):
             self.date_added = datetime.strptime(date_str, self._datetime_format)
         self._fontsize = 24
         self._fontsize_px = self._fontsize*(72/96)
-        self._font = ImageFont.truetype("home_inventory/resources/Helvetica.ttc", self._fontsize)
+        self._font = ImageFont.truetype("./resources/Helvetica.ttc", self._fontsize)
 
     def printCost(self) -> str:
         return f"${self.cost/100:,.2f}/{self.units}"

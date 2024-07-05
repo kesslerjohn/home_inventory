@@ -1,8 +1,5 @@
 from os import remove, listdir, getcwd
-from sys import maxsize
-from json import load
 from pytest import warns
-from numpy.random import randint
 from uuid import uuid4
 from Connection import Connection
 from Item import Item
