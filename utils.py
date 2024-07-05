@@ -3,7 +3,7 @@ from sys import maxsize
 from json import load
 from Item import Item
 
-with open("formatted_nouns.txt", mode = "r") as fp:
+with open("resources/formatted_nouns.txt", mode = "r") as fp:
     nameslist = load(fp)
 
 unitslist = ["meter", "gram", "yard", "mile", "kilogram", "foot", "second", "inch", "millimeter", "ohm", "farad", "volt", "amp", "each"]
