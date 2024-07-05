@@ -68,6 +68,8 @@ def create_item(userEvent):
 def modify_item(userEvent):
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
+    if item == 1:
+        return 1
     if (input("Add or remove items? a/r").lower() == "a"):
         by = int(input("Add how many? "))
         return conn.incrementQuantity(item, by = by)

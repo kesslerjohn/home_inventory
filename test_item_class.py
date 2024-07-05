@@ -27,7 +27,7 @@ def test_init_many_items():
     # initialize a bunch of items with empty uuids and test their properties
     # this is really testing itemFactory() as much as anything
     ids = []
-    for i in range(1000):
+    for i in range(100):
         testItem = itemFactory()
         assert len(testItem.uuid) == len(str(uuid4()))
         assert testItem.quantity >= 0

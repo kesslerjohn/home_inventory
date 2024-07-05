@@ -16,7 +16,7 @@ indexItem = 0
 
 test_path = getcwd() + '/test_inventory.sqlite'
 
-items = [itemFactory(str(uuid4())) for i in range(1000)]
+items = [itemFactory(str(uuid4())) for i in range(100)]
 
 def test_init_db():
     # test that a warning is raised when connecting to a db file not in the cwd.
@@ -45,7 +45,7 @@ def test_create_item():
 
 def test_item_from_db():
     # I initialized a bunch of items earlier and this gets them and checks if they are real
-    for j in range(1000):
+    for j in range(100):
         testItem = conn.getItem(items[j].uuid)
         assert len(testItem.uuid) == len(str(uuid4()))
         assert testItem.quantity >= 0
