@@ -41,19 +41,20 @@ import customtkinter as ctk
 global conn
 global mode
 global ref 
+global root
 
-def reset(userEvent):
+def reset():
     setup('temp_resetdb.sqlite')
     next = True
     while next:
-        create_item(userEvent)
+        create_item()
         if input("Create another item? y/n ") == "n":
             next = False
     print("Done. ")
 
     return 0
 
-def create_item(userEvent):
+def create_item():
     print("\n"*10 + "Create an item.\n" + "="*10)
     features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
     userIn = []
@@ -68,7 +69,7 @@ def create_item(userEvent):
     print("Done. ")
     return 0
 
-def modify_item(userEvent):
+def modify_item():
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
     if item == 1:
@@ -80,12 +81,12 @@ def modify_item(userEvent):
         by = int(input("Remove how many? "))
         return conn.decrementQuantity(item, by = by)
 
-def delete_item(userEvent):
+def delete_item():
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid) 
     return conn.destroy(item)
 
-def view_item_info(userEvent):
+def view_item_info():
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
     if item == 1:
@@ -107,8 +108,30 @@ events_d = {
     'view': view_item_info
 }
 
+t_events_d = {
+    'reset': lambda: print("reset"),
+    'create': lambda: print("create_item"),
+    'modify': lambda: print("modify_item"),
+    'delete': lambda: print("delete_item"),
+    'view': lambda: print("view_item_info")
+}
+
 def setup(db_file):
-    return Connection(ref, db_file)
+    global conn
+    ctk.set_appearance_mode("system")
+    ctk.set_default_color_theme("green")
+    root = ctk.CTk()
+    root.geometry("500x350")
+    frame = ctk.CTkFrame(master=root)
+    frame.pack(padx = 60, pady = 20, fill="both", expand = True)
+
+    conn = Connection(ref, db_file)
+
+    for f in t_events_d.keys():
+        button = ctk.CTkButton(master = frame, text = f.capitalize(), command = events_d[f])
+        button.pack(pady=12)
+    root.mainloop()
+    
 
 def loop():
     global conn
@@ -118,7 +141,7 @@ def loop():
             print("Please give a valid mode")
     else:
         mode = events_d[userEvent]
-        mode(conn)
+        mode()
     return 0
 
 if __name__ == "__main__":
@@ -126,5 +149,5 @@ if __name__ == "__main__":
 
     conn = setup('/test_inventory.sqlite')
 
-    while True:
-        loop()
+    #while True:
+    #    loop()
