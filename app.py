@@ -1,6 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from Connection import Connection
+from Item import Item
+from database_utils import *
+
+#events_d = {
+#    'reset': reset,
+#    'create': create_item_tk,
+#    'modify': modify_item,
+#    'delete': delete_item,
+#    'view': view_item_info
+#}
 
 class App(ctk.CTk):
 
@@ -18,7 +29,7 @@ class App(ctk.CTk):
   
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (MainPage, Page1):
+        for F in (MainPage, Create):
   
             frame = F(container, self)
   
@@ -43,30 +54,35 @@ class MainPage(ctk.CTkFrame):
         label = ctk.CTkLabel(self, text = "QR Inventory", font = ("Roboto", 35))
         label.grid(row = 0, column = 4, padx = 10, pady = 10)
 
-        button1 = ctk.CTkButton(self, text ="Page 1",
-        command = lambda : controller.show_frame(Page1))
+        button1 = ctk.CTkButton(self, text ="Create",
+        command = lambda : controller.show_frame(Create))
      
         # putting the button in its place by
         # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 10)
   
-# second window frame page1 
-class Page1(ctk.CTkFrame):
-     
+class Create(ctk.CTkFrame):
     def __init__(self, parent, controller):
-         
+        
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text ="Page 1", font = ("Roboto", 35))
+        label = ctk.CTkLabel(self, text ="Create", font = ("Roboto", 35))
         label.grid(row = 0, column = 4, padx = 10, pady = 10)
   
+        self.features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
+
+        for i in range(len(self.features)):
+            info = ctk.CTkEntry(placeholder_text=self.features[i], master=parent)
+            info.grid(row=i, column = 0, padx = 10, pady = 10)
+
         # button to show frame 2 with text
         # layout2
-        button1 = ctk.CTkButton(self, text ="Main Page",
+        main_button = ctk.CTkButton(self, text ="Main Page",
                             command = lambda : controller.show_frame(MainPage))
      
         # putting the button in its place 
         # by using grid
-        button1.grid(row = 1, column = 1, padx = 10, pady = 10)
+        main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
+        
 
 app = App()
 app.mainloop()

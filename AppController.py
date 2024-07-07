@@ -133,7 +133,6 @@ def setup(db_file):
         button.pack(pady=12)
     root.mainloop()
     
-
 def loop():
     global conn
     print("Enter mode: ")
