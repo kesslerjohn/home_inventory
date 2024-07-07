@@ -69,6 +69,14 @@ def create_item():
     print("Done. ")
     return 0
 
+def create_item_tk():
+   create_frame = ctk.CTkFrame(master=root)
+   create_frame.pack()
+   features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
+   for f in features:
+       info = ctk.CTkEntry(text = f":> {f}: ", title = "Create item", master = create_frame)
+       info.pack()
+
 def modify_item():
     uuid = input("Scan QR: ")
     item = conn.getItem(uuid)
@@ -102,22 +110,15 @@ def view_item_info():
 
 events_d = {
     'reset': reset,
-    'create': create_item,
+    'create': create_item_tk,
     'modify': modify_item,
     'delete': delete_item,
     'view': view_item_info
 }
 
-t_events_d = {
-    'reset': lambda: print("reset"),
-    'create': lambda: print("create_item"),
-    'modify': lambda: print("modify_item"),
-    'delete': lambda: print("delete_item"),
-    'view': lambda: print("view_item_info")
-}
-
 def setup(db_file):
     global conn
+    global root
     ctk.set_appearance_mode("system")
     ctk.set_default_color_theme("green")
     root = ctk.CTk()
@@ -127,7 +128,7 @@ def setup(db_file):
 
     conn = Connection(ref, db_file)
 
-    for f in t_events_d.keys():
+    for f in events_d.keys():
         button = ctk.CTkButton(master = frame, text = f.capitalize(), command = events_d[f])
         button.pack(pady=12)
     root.mainloop()
