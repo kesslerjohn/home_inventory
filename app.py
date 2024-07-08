@@ -3,6 +3,7 @@ from tkinter import ttk
 from Connection import Connection
 from Item import Item
 from database_utils import *
+from math import floor
 
 class App(tk.Tk):
 
@@ -17,11 +18,12 @@ class App(tk.Tk):
         self.frames = {}  
         self.titles = {MainPage: "🧰 Inventory 🧰",
                        Create: "🌼 Create 🌼",
-                       Update: "🧩 Modify 🧩",
-                       View: "📒 Item info 📒"}
+                       Update: "🧩 Update 🧩",
+                       View: "📒 Item info 📒",
+                       Delete: "❌ Delete ❌"}
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (MainPage, Create, Update, View):
+        for F in (MainPage, Create, Update, View, Delete):
   
             frame = F(container, self)
   
@@ -59,59 +61,74 @@ class MainPage(tk.Frame):
 
         view_button = tk.Button(inner_frame, text="View", 
                                    command = lambda : root.show_frame(View), width = 20, height = 5)
-     
-        # putting the button in its place by
-        # using grid
+
+        delete_button = tk.Button(inner_frame, text="Delete", 
+                                   command = lambda : root.show_frame(Delete), width = 20, height = 5)
+
         create_button.grid(row = 0, column = 0)
         update_button.grid(row = 0, column = 1)
         view_button.grid(row = 1, column = 0)
-
+        delete_button.grid(row = 1, column = 1)
   
 class Create(tk.Frame):
     def __init__(self, parent, root):
         
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text ="Create", font = ("Roboto", 35))
-        label.grid(row = 0, column = 6, padx = 10, pady = 10)
 
         input_window = tk.Frame(self)
-        input_window.rowconfigure(5)
-        input_window.columnconfigure(3)
-        input_window.grid(padx = 10, pady = 10)
-  
+        input_window.grid(row = 1, column = 1, padx = 120, pady = 50)
+
         features = ["Item name", "Units", "Cost per unit", "Quantity", "Datasheet"]
 
-        # TODO: These should all span both columns except for cost and units
-        name_entry = ttk.Entry(input_window)
+        name_label = ttk.Label(input_window, text = "Name:", font = ("Roboto", 12))
+        name_label.grid(row = 0, column = 0)
+
+        self.name = tk.StringVar()
+        name_entry = ttk.Entry(input_window, textvariable=self.name)
         name_entry.grid(row = 0, column = 1, columnspan=3)
 
-        name_label = ttk.Label(input_window, text = "Name:", font = ("Roboto", 12))
-        name_label.grid(row = 0, column = 1)
-
-        qty_entry = ttk.Entry(input_window)
+        self.qty = tk.StringVar()
+        qty_entry = ttk.Entry(input_window, textvariable=self.qty)
         qty_entry.grid(row = 1, column = 1, columnspan=3)
 
-        cost_entry = ttk.Entry(input_window)
+        self.cost = tk.StringVar()
+        cost_entry = ttk.Entry(input_window, textvariable=self.cost, width = 14)
         cost_entry.grid(row = 2, column = 1, columnspan=2)
 
-        units_entry = ttk.Entry(input_window)
+        self.units = tk.StringVar()
+        units_entry = ttk.Entry(input_window, textvariable=self.units, width = 4)
         units_entry.grid(row = 2, column = 3)
 
-        datasheet_entry = ttk.Entry(input_window)
+        self.datasheet = tk.StringVar()
+        datasheet_entry = ttk.Entry(input_window, textvariable=self.datasheet)
         datasheet_entry.grid(row = 3, column = 1, columnspan=3)       
 
-        create_button = ttk.Button(self, text = "Create",
-                                   command = lambda: print("Create button pushed"))
-        create_button.grid(row = 4, column = 0)
+        create_button = ttk.Button(input_window, text = "Create",
+                                   command = lambda: self.submitQuery())
+        create_button.grid(row = 4, column = 1)
 
         # button to show frame 2 with text
         # layout2
-        main_button = ttk.Button(self, text = "Main Page",
+        main_button = ttk.Button(input_window, text = "Main Page",
                             command = lambda : root.show_frame(MainPage))
      
         # putting the button in its place 
         # by using grid
-        main_button.grid(row = 4, column = 1)
+        main_button.grid(row = 4, column = 2, columnspan=2)
+
+        name_entry.focus()
+    
+    def submitQuery(self):
+        print(f"""Created item:
+            Name: {self.name.get()}
+            Quantity: {self.qty.get()} {self.units.get()}
+            Cost: {self.cost.get()} / {self.units.get()}
+            Datasheet at: {self.datasheet.get()}
+              """)
+        
+        for sv in [self.name, self.qty, self.units, self.cost, self.datasheet]:
+            sv.set("")
+
 
 class Update(tk.Frame):
     def __init__(self, parent, root):
@@ -134,8 +151,18 @@ class View(tk.Frame):
         main_button = ttk.Button(self, text="Main Page",
                             command = lambda : root.show_frame(MainPage))
         
-        main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
+        main_button.grid(row = 1, column = 1, padx = 10, pady = 10)
 
+class Delete(tk.Frame):
+    def __init__(self, parent, root):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text = "Delete", font = ("Roboto", 35))
+        label.grid()
+
+        main_button = ttk.Button(self, text="Main Page",
+                            command = lambda : root.show_frame(MainPage))
+        
+        main_button.grid(row = 1, column = 1, padx = 10, pady = 10)
 
 
 app = App()
