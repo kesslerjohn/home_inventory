@@ -15,10 +15,13 @@ class App(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}  
-  
+        self.titles = {MainPage: "🧰 Inventory 🧰",
+                       Create: "🌼 Create 🌼",
+                       Update: "🧩 Modify 🧩",
+                       View: "📒 Item info 📒"}
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (MainPage, Create, Modify):
+        for F in (MainPage, Create, Update, View):
   
             frame = F(container, self)
   
@@ -34,33 +37,40 @@ class App(tk.Tk):
     
     def show_frame(self, cont):
         frame = self.frames[cont]
+        self.title(self.titles[cont])
         frame.tkraise()
 
 class MainPage(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
+        self.rowconfigure(2, weight=2)
+        self.columnconfigure(2, weight=1)
 
-        label = ttk.Label(self, text = "QR Inventory", font = ("Roboto", 35))
-        label.grid(row = 0, column = 4, padx = 10, pady = 10)
-
+        #label = ttk.Label(self, text = "QR Inventory", font = ("Roboto", 35))
+        #label.grid(row = 0, column = 0, padx = 10, pady = 10)
 
         create_button = ttk.Button(self, text ="Create",
-        command = lambda : controller.show_frame(Create))
+                                   command = lambda : root.show_frame(Create))
 
-        modify_button = ttk.Button(self, text ="Modify",
-        command = lambda : controller.show_frame(Modify))
+        update_button = ttk.Button(self, text ="Update",
+                                   command = lambda : root.show_frame(Update))
+
+        view_button = ttk.Button(self, text="View", 
+                                   command = lambda : root.show_frame(View))
      
         # putting the button in its place by
         # using grid
-        create_button.grid(row = 1, column = 1, padx = 10, pady = 10)
-        modify_button.grid(row = 1, column = 2, padx = 10, pady = 10)
+        create_button.grid(row = 0, column = 0, padx = 10, pady = 10)
+        update_button.grid(row = 0, column = 1, padx = 10, pady = 10)
+        view_button.grid(row = 1, column = 0, padx = 10, pady = 10)
+
   
 class Create(tk.Frame):
     def __init__(self, parent, controller):
         
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text ="Create", font = ("Roboto", 35))
-        label.grid(row = 0, column = 4, padx = 10, pady = 10)
+        label.grid(row = 0, column = 6, padx = 10, pady = 10)
   
         self.features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
 
@@ -77,8 +87,8 @@ class Create(tk.Frame):
         # by using grid
         main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
 
-class Modify(tk.Frame):
-    def __init__(self, parent, controller):
+class Update(tk.Frame):
+    def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text ="Scan item QR", font = ("Roboto", 35))
         label.grid(row = 0, column = 4, padx = 10, pady = 10)
@@ -87,7 +97,18 @@ class Modify(tk.Frame):
         entrybox.grid()
     
         main_button = ttk.Button(self, text="Main Page",
-                            command = lambda : controller.show_frame(MainPage))
+                            command = lambda : root.show_frame(MainPage))
+        
+        main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
+
+class View(tk.Frame):
+    def __init__(self, parent, root):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text = "View", font = ("Roboto", 35))
+        label.grid()
+
+        main_button = ttk.Button(self, text="Main Page",
+                            command = lambda : root.show_frame(MainPage))
         
         main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
 
