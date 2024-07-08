@@ -164,13 +164,39 @@ class Update(tk.Frame):
 class View(tk.Frame):
     def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text = "View", font = ("Roboto", 35))
-        label.grid()
+        
+        self.conn = root.conn
 
+        label = ttk.Label(self, text = "Scan item QR:", font = ("Roboto", 12))
+        label.grid(row = 0, column = 0, columnspan = 2)
+
+        qr = tk.StringVar()
+        code_entry = ttk.Entry(self, textvariable = qr)
+        code_entry.grid(row = 1, column = 0, columnspan = 2)
+
+        get_button = ttk.Button(self, text = "Get item", command = lambda: get_response(qr))
+        get_button.grid(row = 2, column = 0)
+    
         main_button = ttk.Button(self, text="Main Page",
                             command = lambda : root.show_frame(MainPage))
-        
-        main_button.grid(row = 1, column = 1, padx = 10, pady = 10)
+        main_button.grid(row = 2, column = 1)
+
+        code_entry.focus()
+
+        def get_response(self, qr):
+            item = self.conn.getItem(qr.get())
+            qr.set("")
+            if item == 1:
+                self.root.show_frame(MainPage)
+                return 1
+            disp = f"""
+                    Item name: {item.printName()}
+                    Quantity: {item.printQuantity()}
+                    Cost: {item.printCost()}
+                    Weight: {item.weight}g
+                    Added on: {item.printDateAdded()}
+                    """
+            print(disp)
 
 class Delete(tk.Frame):
     def __init__(self, parent, root):
@@ -183,6 +209,27 @@ class Delete(tk.Frame):
         
         main_button.grid(row = 1, column = 1, padx = 10, pady = 10)
 
+class ItemDisplay(tk.Frame):
+    def __init__(self, parent, root):
+        tk.Frame.__init__(self, parent)
+        name_label = ttk.Label(self, text = "Name: ", font = ("Roboto", 12))
+        name_label.grid(row = 0, column = 0)
+
+        qty_label = ttk.Label(self, text = "Quantity: ", font = ("Roboto", 12))
+        qty_label.grid(row = 1, column = 0)
+
+        cost_label = ttk.Label(self, text = "Cost: ", font = ("Roboto", 12))
+        cost_label.grid(row = 2, column = 0)
+
+    def setItem(self, item : Item): 
+        i_name_label = ttk.Label(self, text = item.printName(), font = ("Roboto", 12))
+        i_name_label.grid(row = 0, column = 1)
+
+        i_qty_label = ttk.Label(self, text = item.printQuantity(), font = ("Roboto", 12))
+        i_qty_label.grid(row = 1, column = 1)
+
+        i_cost_label = ttk.Label(self, text = item.printCost(), font = ("Roboto", 12))
+        i_cost_label.grid(row = 2, column = 1)
 
 app = App()
 app.mainloop()
