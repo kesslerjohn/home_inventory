@@ -71,21 +71,43 @@ class Create(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text ="Create", font = ("Roboto", 35))
         label.grid(row = 0, column = 6, padx = 10, pady = 10)
-  
-        self.features = ["Item name", "Units", "Cost per unit", "Quantity", "Weight", "Datasheet"]
 
-        for i in range(len(self.features)):
-            info = ttk.Entry(master=parent)
-            info.grid(column=0)
+        input_window = tk.Frame(self)
+        input_window.rowconfigure(5)
+        input_window.columnconfigure(2)
+        input_window.grid()
+  
+        features = ["Item name", "Units", "Cost per unit", "Quantity", "Datasheet"]
+
+
+        # TODO: These should all span both columns except for cost and units
+        name_entry = ttk.Entry(input_window)
+        name_entry.grid(row = 0, column = 0)
+
+        qty_entry = ttk.Entry(input_window)
+        qty_entry.grid(row = 1, column = 0)
+
+        cost_entry = ttk.Entry(input_window)
+        cost_entry.grid(row = 2, column = 0)
+
+        units_entry = ttk.Entry(input_window)
+        units_entry.grid(row = 2, column = 1)
+
+        datasheet_entry = ttk.Entry(input_window)
+        datasheet_entry.grid(row = 3, column = 0)        
+
+        create_button = ttk.Button(self, text = "Create",
+                                   command = lambda: print("Create button pushed"))
+        create_button.grid(row = 4, column = 0)
 
         # button to show frame 2 with text
         # layout2
-        main_button = ttk.Button(self, text ="Main Page",
+        main_button = ttk.Button(self, text = "Main Page",
                             command = lambda : controller.show_frame(MainPage))
      
         # putting the button in its place 
         # by using grid
-        main_button.grid(row = 6, column = 1, padx = 10, pady = 10)
+        main_button.grid(row = 4, column = 1)
 
 class Update(tk.Frame):
     def __init__(self, parent, root):
