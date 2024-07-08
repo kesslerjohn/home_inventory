@@ -6,6 +6,7 @@
 ### GUI
  - Create viewing layout
  - Create dedicated screens for each mode
+ - programmatically set element sizes for consistency
 
 ## Mid-term goals:
  - Add photos of items

@@ -3,7 +3,7 @@ from tkinter import ttk
 from Connection import Connection
 from Item import Item
 from database_utils import *
-from math import floor
+import os
 
 class App(tk.Tk):
 
@@ -11,6 +11,8 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         container = tk.Frame(self)
         container.grid()
+
+        self.conn = Connection(os.getcwd(), "gui_db.sqlite")
 
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
@@ -21,15 +23,9 @@ class App(tk.Tk):
                        Update: "🧩 Update 🧩",
                        View: "📒 Item info 📒",
                        Delete: "❌ Delete ❌"}
-        # iterating through a tuple consisting
-        # of the different page layouts
         for F in (MainPage, Create, Update, View, Delete):
   
             frame = F(container, self)
-  
-            # initializing frame of that object from
-            # startpage, page1, page2 respectively with 
-            # for loop
             self.frames[F] = frame 
   
             frame.grid(row = 0, column = 0, sticky = "nsew")
@@ -37,9 +33,9 @@ class App(tk.Tk):
         self.geometry("500x300")
         self.show_frame(MainPage)
     
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        self.title(self.titles[cont])
+    def show_frame(self, f):
+        frame = self.frames[f]
+        self.title(self.titles[f])
         frame.tkraise()
 
 class MainPage(tk.Frame):
@@ -74,74 +70,97 @@ class Create(tk.Frame):
     def __init__(self, parent, root):
         
         tk.Frame.__init__(self, parent)
+        self.conn = root.conn
 
         input_window = tk.Frame(self)
         input_window.grid(row = 1, column = 1, padx = 120, pady = 50)
 
-        features = ["Item name", "Units", "Cost per unit", "Quantity", "Datasheet"]
-
         name_label = ttk.Label(input_window, text = "Name:", font = ("Roboto", 12))
         name_label.grid(row = 0, column = 0)
 
-        self.name = tk.StringVar()
-        name_entry = ttk.Entry(input_window, textvariable=self.name)
+        name = tk.StringVar()
+        name_entry = ttk.Entry(input_window, textvariable = name)
         name_entry.grid(row = 0, column = 1, columnspan=3)
 
-        self.qty = tk.StringVar()
-        qty_entry = ttk.Entry(input_window, textvariable=self.qty)
+        qty_label = ttk.Label(input_window, text = "Quantity: ", font = ("Roboto", 12))
+        qty_label.grid(row = 1, column = 0)
+        qty = tk.StringVar()
+        qty_entry = ttk.Entry(input_window, textvariable = qty)
         qty_entry.grid(row = 1, column = 1, columnspan=3)
 
-        self.cost = tk.StringVar()
-        cost_entry = ttk.Entry(input_window, textvariable=self.cost, width = 14)
-        cost_entry.grid(row = 2, column = 1, columnspan=2)
+        cost_label = ttk.Label(input_window, text = "Cost: ", font = ("Roboto", 12))
+        cost_label.grid(row = 2, column = 0)
+        cost = tk.StringVar()
+        cost_entry = ttk.Entry(input_window, textvariable = cost, width = 9)
+        cost_entry.grid(row = 2, column = 1, columnspan=1)
 
-        self.units = tk.StringVar()
-        units_entry = ttk.Entry(input_window, textvariable=self.units, width = 4)
+        units_label = ttk.Label(input_window, text = "Units: ", font = ("Roboto", 12))
+        units_label.grid(row = 2, column = 2)
+        units = tk.StringVar()
+        units_entry = ttk.Entry(input_window, textvariable = units, width = 4)
         units_entry.grid(row = 2, column = 3)
 
-        self.datasheet = tk.StringVar()
-        datasheet_entry = ttk.Entry(input_window, textvariable=self.datasheet)
+        datasheet_label = ttk.Label(input_window, text = "Datasheet: ", font = ("Roboto", 12))
+        datasheet_label.grid(row = 3, column = 0)
+        datasheet = tk.StringVar()
+        datasheet_entry = ttk.Entry(input_window, textvariable = datasheet)
         datasheet_entry.grid(row = 3, column = 1, columnspan=3)       
 
         create_button = ttk.Button(input_window, text = "Create",
-                                   command = lambda: self.submitQuery())
+                                   command = lambda: self.submitQuery(name, qty, cost, units, datasheet))
         create_button.grid(row = 4, column = 1)
 
-        # button to show frame 2 with text
-        # layout2
         main_button = ttk.Button(input_window, text = "Main Page",
                             command = lambda : root.show_frame(MainPage))
      
-        # putting the button in its place 
-        # by using grid
         main_button.grid(row = 4, column = 2, columnspan=2)
 
         name_entry.focus()
     
-    def submitQuery(self):
-        print(f"""Created item:
-            Name: {self.name.get()}
-            Quantity: {self.qty.get()} {self.units.get()}
-            Cost: {self.cost.get()} / {self.units.get()}
-            Datasheet at: {self.datasheet.get()}
-              """)
+    def submitQuery(self, name, qty, cost, units, datasheet):
+        self.conn.create(Item(name = name.get(), units = units.get(), quantity = qty.get(), datasheet = datasheet.get()))
         
-        for sv in [self.name, self.qty, self.units, self.cost, self.datasheet]:
+        for sv in [name, qty, cost, units, datasheet]:
             sv.set("")
-
 
 class Update(tk.Frame):
     def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
-        self.rowconfigure(2, weight = 1)
-        self.columnconfigure(4)
+
+        self.root = root
+        self.conn = root.conn
+
         label = ttk.Label(self, text = "Scan item QR:", font = ("Roboto", 12))
-        label.grid(row = 0, column = 0)
+        label.grid(row = 0, column = 0, columnspan = 2)
+
+        qr = tk.StringVar()
+        code_entry = ttk.Entry(self, textvariable = qr)
+        code_entry.grid(row = 1, column = 0, columnspan = 2)
+
+        get_button = ttk.Button(self, text = "Get item", command = lambda: self.get_response(qr))
+        get_button.grid(row = 2, column = 0)
     
         main_button = ttk.Button(self, text="Main Page",
-                            command = lambda : root.show_frame(MainPage))
-        main_button.grid(row = 2)
+                            command = lambda : self.root.show_frame(MainPage))
+        main_button.grid(row = 2, column = 1)
 
+        code_entry.focus()
+
+    def get_response(self, qr):
+        item = self.conn.getItem(qr.get())
+        qr.set("")
+        if item == 1:
+            self.root.show_frame(MainPage)
+            return 1
+        disp = f"""
+                Item name: {item.printName()}
+                Quantity: {item.printQuantity()}
+                Cost: {item.printCost()}
+                Weight: {item.weight}g
+                Added on: {item.printDateAdded()}
+                """
+        print(disp)
+        
 class View(tk.Frame):
     def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
