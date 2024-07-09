@@ -5,6 +5,8 @@ from Item import Item
 from database_utils import *
 import os
 
+WARNING_SIZE = "300x100"
+
 class App(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -22,8 +24,9 @@ class App(tk.Tk):
                        Create: "🌼 Create 🌼",
                        Update: "🧩 Update 🧩",
                        View: "📒 Item info 📒",
-                       Delete: "❌ Delete ❌"}
-        for F in (MainPage, Create, Update, View, Delete):
+                       Delete: "❌ Delete ❌",
+                       ItemDisplay: "📒 Item info 📒"}
+        for F in (MainPage, Create, Update, View, Delete, ItemDisplay):
   
             frame = F(container, self)
             self.frames[F] = frame 
@@ -37,6 +40,14 @@ class App(tk.Tk):
         frame = self.frames[f]
         self.title(self.titles[f])
         frame.tkraise()
+
+    def show_warning(self, message):
+        win = tk.Toplevel()
+        win.geometry(WARNING_SIZE)
+        win.title("⛔️ Warning ⛔️")
+        warn = ttk.Label(win, text = message)
+        warn.grid(padx=50, pady=40)
+        return 1
 
 class MainPage(tk.Frame):
     def __init__(self, parent, root):
@@ -120,12 +131,7 @@ class Create(tk.Frame):
     
     def submitQuery(self, name, qty, cost, units, datasheet):
         if name.get() == "":
-            win = tk.Toplevel()
-            win.geometry("300x100")
-            win.title("⛔️ Warning ⛔️")
-            warn = ttk.Label(win, text="You must give the item a name.")
-            warn.grid(padx=50, pady=40)
-            return 1
+            return self.root.show_warning("You must give the item a name.")
         self.conn.create(Item(name = name.get(), quantity = qty.get(), cost = cost.get(), units = units.get(), datasheet = datasheet.get()))
         
         for sv in [name, qty, cost, units, datasheet]:
@@ -161,22 +167,15 @@ class Update(tk.Frame):
         item = self.conn.getItem(qr.get())
         qr.set("")
         if item == 1:
-            self.root.show_frame(MainPage)
-            return 1
-        disp = f"""
-                Item name: {item.printName()}
-                Quantity: {item.printQuantity()}
-                Cost: {item.printCost()}
-                Weight: {item.weight}g
-                Added on: {item.printDateAdded()}
-                """
-        print(disp)
+            return self.root.show_warning("No item with this UUID was found.")
+        
         
 class View(tk.Frame):
     def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
         
         self.conn = root.conn
+        self.root = root
 
         label = ttk.Label(self, text = "Scan item QR:", font = ("Roboto", 12))
         label.grid(row = 0, column = 0, columnspan = 2)
@@ -185,7 +184,7 @@ class View(tk.Frame):
         code_entry = ttk.Entry(self, textvariable = qr)
         code_entry.grid(row = 1, column = 0, columnspan = 2)
 
-        get_button = ttk.Button(self, text = "Get item", command = lambda: get_response(qr))
+        get_button = ttk.Button(self, text = "Get item", command = lambda: self.get_response(qr))
         get_button.grid(row = 2, column = 0)
     
         main_button = ttk.Button(self, text="Main Page",
@@ -194,21 +193,18 @@ class View(tk.Frame):
 
         code_entry.focus()
 
-        def get_response(self, qr):
-            item = self.conn.getItem(qr.get())
-            qr.set("")
-            if item == 1:
-                self.root.show_frame(MainPage)
-                return 1
-            disp = f"""
-                    Item name: {item.printName()}
-                    Quantity: {item.printQuantity()}
-                    Cost: {item.printCost()}
-                    Weight: {item.weight}g
-                    Added on: {item.printDateAdded()}
-                    """
-            print(disp)
-
+    def get_response(self, qr):
+        item = self.conn.getItem(qr.get())
+        qr.set("")
+        if item == 1:
+            win = tk.Toplevel()
+            win.geometry(WARNING_SIZE)
+            warn = ttk.Label("")
+            self.root.show_frame(MainPage)
+            return 1
+        self.root.frames[ItemDisplay].setItem(item = item)
+        self.root.show_frame(ItemDisplay)
+            
 class Delete(tk.Frame):
     def __init__(self, parent, root):
         tk.Frame.__init__(self, parent)
