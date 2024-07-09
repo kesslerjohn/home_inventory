@@ -228,6 +228,11 @@ class ItemDisplay(tk.Frame):
         cost_label = ttk.Label(self, text = "Cost: ", font = ("Roboto", 12))
         cost_label.grid(row = 2, column = 0)
 
+        main_button = ttk.Button(self, text="Main Page",
+                            command = lambda : root.show_frame(MainPage))
+        
+        main_button.grid(row = 3, column = 1, padx = 10, pady = 10)
+
     def setItem(self, item : Item): 
         i_name_label = ttk.Label(self, text = item.printName(), font = ("Roboto", 12))
         i_name_label.grid(row = 0, column = 1)
