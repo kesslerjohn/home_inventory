@@ -38,6 +38,14 @@ class Item(object):
     def printDateAdded(self) -> str:
         return self.date_added.strftime(self._datetime_format)
     
+    def printInfo(self) -> str:
+        info = f""" name: {self.name}
+                    qty: {self.printQuantity}
+                    cost: {self.printCost}
+                    date added: {self.printDateAdded}
+                """
+        return info
+    
     def makeQrCode(self, path):
         qr = make(self.uuid)
         width = qr.size[0]

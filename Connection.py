@@ -61,10 +61,11 @@ class Connection(object):
         query = """
         INSERT INTO items (uuid, name, quantity, cost_per_unit, weight, units, datasheet, date_added) 
         VALUES ("{}", "{}", {}, {}, {}, "{}", "{}", "{}");
-        """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet, item.printDateAdded)
+        """.format(item.uuid, item.name, item.quantity, item.cost, item.weight, item.units, item.datasheet, item.printDateAdded())
         if path is None:
             path = os.getcwd()
         item.makeQrCode(path)
+        print(query)
         with sqlite3.connect(self.path) as conn:
             conn.cursor().execute(query)
         return 0

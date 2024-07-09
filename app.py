@@ -71,6 +71,7 @@ class Create(tk.Frame):
         
         tk.Frame.__init__(self, parent)
         self.conn = root.conn
+        self.root = root
 
         input_window = tk.Frame(self)
         input_window.grid(row = 1, column = 1, padx = 120, pady = 50)
@@ -118,7 +119,14 @@ class Create(tk.Frame):
         name_entry.focus()
     
     def submitQuery(self, name, qty, cost, units, datasheet):
-        self.conn.create(Item(name = name.get(), units = units.get(), quantity = qty.get(), datasheet = datasheet.get()))
+        if name.get() == "":
+            win = tk.Toplevel()
+            win.geometry("300x100")
+            win.title("⛔️ Warning ⛔️")
+            warn = ttk.Label(win, text="You must give the item a name.")
+            warn.grid(padx=50, pady=40)
+            return 1
+        self.conn.create(Item(name = name.get(), quantity = qty.get(), cost = cost.get(), units = units.get(), datasheet = datasheet.get()))
         
         for sv in [name, qty, cost, units, datasheet]:
             sv.set("")
@@ -130,17 +138,20 @@ class Update(tk.Frame):
         self.root = root
         self.conn = root.conn
 
-        label = ttk.Label(self, text = "Scan item QR:", font = ("Roboto", 12))
+        box = tk.Frame(self)
+        box.grid(row=0, column=0, padx=150, pady=50)
+
+        label = ttk.Label(box, text = "Scan item QR:", font = ("Roboto", 12))
         label.grid(row = 0, column = 0, columnspan = 2)
 
         qr = tk.StringVar()
-        code_entry = ttk.Entry(self, textvariable = qr)
+        code_entry = ttk.Entry(box, textvariable = qr)
         code_entry.grid(row = 1, column = 0, columnspan = 2)
 
-        get_button = ttk.Button(self, text = "Get item", command = lambda: self.get_response(qr))
+        get_button = ttk.Button(box, text = "Get item", command = lambda: self.get_response(qr))
         get_button.grid(row = 2, column = 0)
     
-        main_button = ttk.Button(self, text="Main Page",
+        main_button = ttk.Button(box, text="Main Page",
                             command = lambda : self.root.show_frame(MainPage))
         main_button.grid(row = 2, column = 1)
 
